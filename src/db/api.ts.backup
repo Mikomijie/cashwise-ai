@@ -1,0 +1,415 @@
+import { supabase } from './supabase';
+import type { Conversation, Message, UserProfile, SavingsGoal, SavingsEntry } from '@/types';
+
+export async function createUserProfile(data: {
+  name: string;
+  monthly_income?: string;
+  main_spending?: string;
+  financial_goal?: string;
+}): Promise<UserProfile | null> {
+  const { data: profile, error } = await supabase
+    .from('user_profiles')
+    .insert(data)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating user profile:', error);
+    return null;
+  }
+
+  return profile;
+}
+
+export async function getUserProfile(id: string): Promise<UserProfile | null> {
+  const { data, error } = await supabase
+    .from('user_profiles')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function createConversation(
+  title = 'New Conversation',
+  userProfileId?: string
+): Promise<Conversation | null> {
+  const { data, error } = await supabase
+    .from('conversations')
+    .insert({ 
+      title,
+      user_profile_id: userProfileId || null
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating conversation:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getConversation(id: string): Promise<Conversation | null> {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching conversation:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getConversations(limit = 20): Promise<Conversation[]> {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching conversations:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+export async function updateConversationTitle(id: string, title: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('conversations')
+    .update({ title, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating conversation title:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function deleteConversation(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('conversations')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting conversation:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function createMessage(
+  conversationId: string,
+  role: 'user' | 'model',
+  content: string
+): Promise<Message | null> {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      role,
+      content
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating message:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getMessages(conversationId: string): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching messages:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+// Savings Goals API
+export async function createSavingsGoal(data: {
+  user_profile_id?: string;
+  goal_name: string;
+  target_amount: number;
+  currency: string;
+}): Promise<SavingsGoal | null> {
+  const { data: goal, error } = await supabase
+    .from('savings_goals')
+    .insert({
+      user_profile_id: data.user_profile_id || null,
+      goal_name: data.goal_name,
+      target_amount: data.target_amount,
+      currency: data.currency
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating savings goal:', error);
+    return null;
+  }
+
+  return goal;
+}
+
+export async function getSavingsGoals(userProfileId?: string): Promise<SavingsGoal[]> {
+  let query = supabase
+    .from('savings_goals')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (userProfileId) {
+    query = query.eq('user_profile_id', userProfileId);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error('Error fetching savings goals:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+export async function getSavingsGoal(id: string): Promise<SavingsGoal | null> {
+  const { data, error } = await supabase
+    .from('savings_goals')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching savings goal:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function updateSavingsGoal(
+  id: string,
+  data: { goal_name?: string; target_amount?: number; currency?: string }
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('savings_goals')
+    .update({ ...data, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating savings goal:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function deleteSavingsGoal(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('savings_goals')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting savings goal:', error);
+    return false;
+  }
+
+  return true;
+}
+
+// Savings Entries API
+export async function createSavingsEntry(data: {
+  goal_id: string;
+  amount: number;
+  entry_date: string;
+  notes?: string;
+}): Promise<SavingsEntry | null> {
+  const { data: entry, error } = await supabase
+    .from('savings_entries')
+    .insert({
+      goal_id: data.goal_id,
+      amount: data.amount,
+      entry_date: data.entry_date,
+      notes: data.notes || null
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating savings entry:', error);
+    return null;
+  }
+
+  return entry;
+}
+
+export async function getSavingsEntries(goalId: string): Promise<SavingsEntry[]> {
+  const { data, error } = await supabase
+    .from('savings_entries')
+    .select('*')
+    .eq('goal_id', goalId)
+    .order('entry_date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching savings entries:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+export async function deleteSavingsEntry(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('savings_entries')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting savings entry:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function getTotalSaved(goalId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from('savings_entries')
+    .select('amount')
+    .eq('goal_id', goalId);
+
+  if (error) {
+    console.error('Error calculating total saved:', error);
+    return 0;
+  }
+
+  if (!data || !Array.isArray(data)) {
+    return 0;
+  }
+
+  return data.reduce((sum, entry) => sum + Number(entry.amount), 0);
+}
+
+export async function getConversation(id: string): Promise<Conversation | null> {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .eq('id', id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error fetching conversation:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getConversations(limit = 20): Promise<Conversation[]> {
+  const { data, error } = await supabase
+    .from('conversations')
+    .select('*')
+    .order('updated_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error fetching conversations:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}
+
+export async function updateConversationTitle(id: string, title: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('conversations')
+    .update({ title, updated_at: new Date().toISOString() })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating conversation title:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function deleteConversation(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from('conversations')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting conversation:', error);
+    return false;
+  }
+
+  return true;
+}
+
+export async function createMessage(
+  conversationId: string,
+  role: 'user' | 'model',
+  content: string
+): Promise<Message | null> {
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      role,
+      content
+    })
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error('Error creating message:', error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getMessages(conversationId: string): Promise<Message[]> {
+  const { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .eq('conversation_id', conversationId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching messages:', error);
+    return [];
+  }
+
+  return Array.isArray(data) ? data : [];
+}

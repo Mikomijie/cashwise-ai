@@ -1,0 +1,197 @@
+/* stylelint-disable */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+    /* Premium Fintech Color System - Deep Green & Gold */
+    --background: 0 0% 100%;
+    --foreground: 150 40% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 150 40% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 150 40% 12%;
+    /* Primary: Deep Green */
+    --primary: 150 60% 25%;
+    --primary-foreground: 0 0% 100%;
+    /* Secondary: Lighter Green */
+    --secondary: 150 30% 92%;
+    --secondary-foreground: 150 60% 20%;
+    /* Muted: Neutral tones */
+    --muted: 150 10% 95%;
+    --muted-foreground: 150 15% 45%;
+    /* Accent: Gold */
+    --accent: 45 90% 92%;
+    --accent-foreground: 45 80% 25%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 15% 88%;
+    --input: 150 15% 88%;
+    --ring: 150 60% 25%;
+    /* Chart colors with green/gold theme */
+    --chart-1: 150 60% 45%;
+    --chart-2: 45 85% 55%;
+    --chart-3: 170 50% 40%;
+    --chart-4: 40 75% 50%;
+    --chart-5: 160 55% 35%;
+    /* Sidebar */
+    --sidebar-background: 150 20% 98%;
+    --sidebar-foreground: 150 40% 20%;
+    --sidebar-primary: 150 60% 25%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 150 15% 94%;
+    --sidebar-accent-foreground: 150 60% 20%;
+    --sidebar-border: 150 15% 90%;
+    --sidebar-ring: 150 60% 25%;
+    /* Custom gold highlight */
+    --gold: 45 85% 55%;
+    --gold-foreground: 45 80% 15%;
+  }
+
+  .dark {
+    --background: 150 30% 8%;
+    --foreground: 150 10% 95%;
+    --card: 150 25% 12%;
+    --card-foreground: 150 10% 95%;
+    --popover: 150 25% 12%;
+    --popover-foreground: 150 10% 95%;
+    /* Primary: Lighter green for dark mode */
+    --primary: 150 50% 45%;
+    --primary-foreground: 150 30% 10%;
+    /* Secondary: Darker green */
+    --secondary: 150 20% 18%;
+    --secondary-foreground: 150 10% 95%;
+    /* Muted */
+    --muted: 150 15% 16%;
+    --muted-foreground: 150 10% 65%;
+    /* Accent: Gold (darker) */
+    --accent: 45 60% 18%;
+    --accent-foreground: 45 85% 85%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 150 20% 20%;
+    --input: 150 20% 20%;
+    --ring: 150 50% 45%;
+    /* Chart colors for dark mode */
+    --chart-1: 150 55% 50%;
+    --chart-2: 45 80% 60%;
+    --chart-3: 170 45% 45%;
+    --chart-4: 40 70% 55%;
+    --chart-5: 160 50% 40%;
+    /* Sidebar dark */
+    --sidebar-background: 150 25% 10%;
+    --sidebar-foreground: 150 10% 90%;
+    --sidebar-primary: 150 50% 45%;
+    --sidebar-primary-foreground: 150 30% 10%;
+    --sidebar-accent: 150 20% 16%;
+    --sidebar-accent-foreground: 150 10% 90%;
+    --sidebar-border: 150 20% 18%;
+    --sidebar-ring: 150 50% 45%;
+    /* Custom gold for dark mode */
+    --gold: 45 80% 60%;
+    --gold-foreground: 45 30% 10%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--gold)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  
+  .gold-accent {
+    color: hsl(var(--gold));
+  }
+}
+
+/* Markdown styling for chat messages */
+@layer components {
+  .prose {
+    @apply text-foreground;
+  }
+  
+  .prose h1,
+  .prose h2,
+  .prose h3,
+  .prose h4,
+  .prose h5,
+  .prose h6 {
+    @apply font-bold text-foreground mt-4 mb-2;
+  }
+  
+  .prose h1 {
+    @apply text-xl md:text-2xl;
+  }
+  
+  .prose h2 {
+    @apply text-lg md:text-xl;
+  }
+  
+  .prose h3 {
+    @apply text-base md:text-lg;
+  }
+  
+  .prose p {
+    @apply my-2 leading-relaxed;
+  }
+  
+  .prose strong {
+    @apply font-semibold text-foreground;
+  }
+  
+  .prose em {
+    @apply italic;
+  }
+  
+  .prose ul,
+  .prose ol {
+    @apply my-2 ml-4 space-y-1;
+  }
+  
+  .prose ul {
+    @apply list-disc;
+  }
+  
+  .prose ol {
+    @apply list-decimal;
+  }
+  
+  .prose li {
+    @apply my-1;
+  }
+  
+  .prose code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm;
+  }
+  
+  .prose pre {
+    @apply bg-muted p-3 rounded-lg overflow-x-auto my-2;
+  }
+  
+  .prose blockquote {
+    @apply border-l-4 border-primary pl-4 italic my-2;
+  }
+  
+  .prose a {
+    @apply text-primary underline hover:text-primary/80;
+  }
+}
